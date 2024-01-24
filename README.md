@@ -17,7 +17,7 @@ The assembly order of its protein subunits is functionally very important. In th
 ## Usage
 Run ```nohup python submit_run.py > *.out &```
 
-## Authur
+## Author
 Yunxiao Lu & Zhiyong Zhang
 
 
