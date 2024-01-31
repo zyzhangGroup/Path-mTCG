@@ -1,17 +1,13 @@
 #!/bin/bash
 
-# Script for coordinating and running MD simulations
-
+# Script for coordinating and running energy minimization jobs
 # Define variables
-
 TEMP=$1
 HOST=$2
 N_SUB=$3
 NAME="$4"
-INP1=nat.inp
-INP2=em1.inp
-INP3=em2.inp
-INP=protein.inp
+INP1=em1.inp
+INP2=em2.inp
 N_LINES=$((N_SUB * (N_SUB - 1) / 2))
 
 # Check if temp dir exists and create if needed
@@ -19,7 +15,7 @@ if [ ! -d "Setup" ]; then
     mkdir "Setup" || { echo "Failed to create directory: Setup"; exit 1; }
 fi
 
-
+# Change directory to "Setup" and if the operation fails, print an error message and exit the program
 cd "Setup" || { echo "Failed to change to directory: Setup"; exit 1; }
 
 # Write hostname to hostfile
@@ -40,8 +36,6 @@ sed_replace() {
 # Use the sed_replace function to avoid repeating sed commands
 sed_replace "$INP1" "$INP1" "1-n" "1-$N_SUB" "Protein" "$NAME"  | tee "$INP1"
 sed_replace "$INP2" "$INP2" "1-n" "1-$N_SUB" "Protein" "$NAME"  | tee "$INP2"
-sed_replace "$INP3" "$INP3" "1-n" "1-$N_SUB" "Protein" "$NAME"  | tee "$INP3"
-sed_replace "$INP" "$INP" "TEMP" "$TEMP" "Protein" "$NAME" | tee "$INP"
 
 # Run simulations and include error handling
 for i in 1 2; do
@@ -51,11 +45,17 @@ for i in 1 2; do
     wait
 done
 
-# Process intermediate results and copy files
-#tail -n "$N_LINES" "$NAME.ts" | awk '{print $8}' > qscore_inter.txt
-#sleep 3s
-#../../example/test "$N_SUB" qscore_inter.txt || { echo "Test failed"; exit 1; }
 
-# Copy files to q_temp directory with error handling
-#cp "$NAME.ts" "../../q_temp/$TEMP.ts" || { echo "Failed to copy $NAME.ts"; exit 1; }
-#cp subunit.txt "../../q_temp/$TEMP.txt" || { echo "Failed to copy subunit.txt"; exit 1; }
+# Extract the inter-subunit contact map from the em1.ninfo file
+# Use the grep command to extract lines containing "total_contact_unit" from the em1.ninfo file and redirect the output to the contmp.txt file
+grep "total_contact_unit" em1.ninfo > contmp.txt
+
+# Use the awk command to print the 4th column from the contmp.txt file and redirect the output to the all_con.txt file
+awk '{print $4}' contmp.txt > all_con.txt
+
+# Sub_con generates all_contact.txt that is a matrix of inter-subunit contact numbers
+# Invoke the Sub_con script, passing the all_con.txt file as an argument to the Sub_con script and N_SUB as the second argument
+./../../Script/Sub_con $N_SUB all_con.txt
+ 
+# Copy all_contact.txt to the Result_Tq directory, preparing for processing ts files in the results
+cp all_contact.txt ../../Result_Tq/
