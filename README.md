@@ -13,9 +13,11 @@ The assembly order of its protein subunits is functionally very important. In th
 3. Prepare the PDB file(eg: `arp23.pdb`) and place it at the `example/Input` directory
 4. Set the minimum temperature (`T_min`), the maximum temperature (`T_max`), the number ofsubunits (`n`), the protein name (`Pro_name`) and the hostlists (`hostlists`) in the `submit_run.py` file. The `Pro_name` must be the same as the pdb file name(eg: `Pro_name="arp23"`)
 5. Run the execution file `submit_run.py` and set the output file name(eg: `arp23.out`)
+6. Use  ```"python proc_ts.py n"``` (n is <number_of_subunits>) to process the result in the `example/Result_Tq` directory
 
 ## Usage
-Run ```nohup python submit_run.py > *.out &```
+Run ```"nohup python submit_run.py > *.out &"```
+
 
 ## Author
 Yunxiao Lu & Zhiyong Zhang
